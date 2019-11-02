@@ -1,0 +1,10 @@
+C:\Users\Przem\source\repos\gk projekt 2\gk projekt 2\bin\Debug\gk projekt 2.exe.config
+C:\Users\Przem\source\repos\gk projekt 2\gk projekt 2\bin\Debug\gk projekt 2.exe
+C:\Users\Przem\source\repos\gk projekt 2\gk projekt 2\bin\Debug\gk projekt 2.pdb
+C:\Users\Przem\source\repos\gk projekt 2\gk projekt 2\obj\Debug\gk projekt 2.csprojAssemblyReference.cache
+C:\Users\Przem\source\repos\gk projekt 2\gk projekt 2\obj\Debug\gk_projekt_2.Form1.resources
+C:\Users\Przem\source\repos\gk projekt 2\gk projekt 2\obj\Debug\gk_projekt_2.Properties.Resources.resources
+C:\Users\Przem\source\repos\gk projekt 2\gk projekt 2\obj\Debug\gk projekt 2.csproj.GenerateResource.cache
+C:\Users\Przem\source\repos\gk projekt 2\gk projekt 2\obj\Debug\gk projekt 2.csproj.CoreCompileInputs.cache
+C:\Users\Przem\source\repos\gk projekt 2\gk projekt 2\obj\Debug\gk projekt 2.exe
+C:\Users\Przem\source\repos\gk projekt 2\gk projekt 2\obj\Debug\gk projekt 2.pdb
