@@ -66,7 +66,7 @@ namespace gk_projekt_2
             List<Vertice> worklist = new List<Vertice>(vertices);
             Vertice[] verticeTab = vertices.ToArray();
             int[] ind = new int[worklist.Count];
-            List<(double, double, double, double)> Aet2 = new List<(double, double, double, double)>();
+            List<(double, double, double, double)> Aet = new List<(double, double, double, double)>();
 
             for (int i = 0; i < worklist.Count; i++)
                 ind[i] = i;
@@ -86,33 +86,35 @@ namespace gk_projekt_2
                     }
                 }
             }
+
+            //aet fill algorithm
             int k = 0;
             for (int y = vertices[ind[0]].Y; y <= vertices[ind[vertices.Count - 1]].Y; y++)
             {
                 while (k < vertices.Count && vertices[ind[k]].Y == y)
                 {
                     if (vertices[(ind[k] + 1) % 3].Y > vertices[ind[k]].Y)
-                        Aet2.Add((vertices[(ind[k] + 1) % 3].Y, vertices[ind[k]].X, vertices[ind[k]].X, getA(vertices[(ind[k] + 1) % 3], vertices[ind[k]])));
+                        Aet.Add((vertices[(ind[k] + 1) % 3].Y, vertices[ind[k]].X, vertices[ind[k]].X, getA(vertices[(ind[k] + 1) % 3], vertices[ind[k]])));
                     else
-                        Aet2.RemoveAll(item => item.Item1 == vertices[ind[k]].Y && item.Item2 == vertices[(ind[k] + 1) % 3].X);
+                        Aet.RemoveAll(item => item.Item1 == vertices[ind[k]].Y && item.Item2 == vertices[(ind[k] + 1) % 3].X);
 
                     if (vertices[(ind[k] + 2) % 3].Y > vertices[ind[k]].Y)
-                        Aet2.Add((vertices[(ind[k] + 2) % 3].Y, vertices[ind[k]].X, vertices[ind[k]].X, getA(vertices[(ind[k] + 2) % 3], vertices[ind[k]])));
+                        Aet.Add((vertices[(ind[k] + 2) % 3].Y, vertices[ind[k]].X, vertices[ind[k]].X, getA(vertices[(ind[k] + 2) % 3], vertices[ind[k]])));
                     else
-                        Aet2.RemoveAll(item => item.Item1 == vertices[ind[k]].Y && item.Item2 == vertices[(ind[k] + 2) % 3].X);
+                        Aet.RemoveAll(item => item.Item1 == vertices[ind[k]].Y && item.Item2 == vertices[(ind[k] + 2) % 3].X);
 
                     k++;
                 }
 
-                Aet2.Sort((p1, p2) =>
+                Aet.Sort((p1, p2) =>
                 {
                     return (int)(p1.Item3 - p2.Item3);
                 });
 
-                int c = Aet2.Count / 2;
+                int c = Aet.Count / 2;
                 for (int i = 0; i < c; i++)
                 {
-                    for (int d = (int)Aet2[2 * i].Item3; d < (int)Aet2[2 * i + 1].Item3; d++)
+                    for (int d = (int)Aet[2 * i].Item3; d < (int)Aet[2 * i + 1].Item3; d++)
                     {
                         Color color;
                         switch (calculateColorType)
@@ -131,9 +133,9 @@ namespace gk_projekt_2
                         drawTable[d, y] = color;
                     }
                 }
-                for (int i = 0; i < Aet2.Count; i++)
+                for (int i = 0; i < Aet.Count; i++)
                 {
-                    Aet2[i] = (Aet2[i].Item1, Aet2[i].Item2, Aet2[i].Item3 + Aet2[i].Item4, Aet2[i].Item4);
+                    Aet[i] = (Aet[i].Item1, Aet[i].Item2, Aet[i].Item3 + Aet[i].Item4, Aet[i].Item4);
                 }
 
             }

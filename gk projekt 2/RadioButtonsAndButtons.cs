@@ -15,7 +15,6 @@ namespace gk_projekt_2
     {
         private void Redraw_Button_Click(object sender, EventArgs e)
         {
-
             SetUpNet();
             pictureBox1.Invalidate();
         }
@@ -122,7 +121,7 @@ namespace gk_projekt_2
 
         private void trackBar2_ValueChanged(object sender, EventArgs e)
         {
-            k_d = ((double)trackBar1.Value / 100.0);
+            k_d = ((double)trackBar2.Value / 100.0);
             kd_label.Text = $"k_d={k_d}";
             pictureBox1.Invalidate();
         }
