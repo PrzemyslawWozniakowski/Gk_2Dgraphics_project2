@@ -182,7 +182,7 @@ namespace gk_projekt_2
 
 
             int colorred, colorgreen, colorblue;
-            (colorred, colorgreen, colorblue) = getRGBfromVertices(fullField, Field0, Field1, Field2);
+            (colorred, colorgreen, colorblue) = getRGBfromVerticesHybrid(fullField, Field0, Field1, Field2);
 
             var mappixel = Color.FromArgb(Clamp(colorred, 0, 255), Clamp(colorgreen, 0, 255), Clamp(colorblue, 0, 255));
             Vec3 normalV = Field0 / fullField * ColorAndVectorsinVertices[0].Item2 + Field1 / fullField * ColorAndVectorsinVertices[1].Item2 + Field2 / fullField * ColorAndVectorsinVertices[2].Item2;
@@ -223,7 +223,6 @@ namespace gk_projekt_2
 
         public (int,int,int) getRGB(double k_d, Color lightColor, Color pixelColor, double product1, double k_s, double product2, int m)
         {
-
             int red = (int)(k_d * lightColor.R * pixelColor.R * product1 + k_s * lightColor.R * pixelColor.R * Math.Pow(product2, m));
             int blue = (int)(k_d * lightColor.B * pixelColor.B * product1 + k_s * lightColor.B * pixelColor.B * Math.Pow(product2, m));
             int green = (int)(k_d * lightColor.G * pixelColor.G * product2 + k_s * lightColor.G * pixelColor.G * Math.Pow(product2, m));
@@ -236,6 +235,15 @@ namespace gk_projekt_2
             int colorred = (int)((Field0 / fullField + Field1 / fullField + Field2 / fullField)* ColorsInVertices[0].R);
             int colorgreen = (int)((Field0 / fullField + Field1 / fullField + Field2 / fullField) * ColorsInVertices[0].G);
             int colorblue = (int)((Field0 / fullField + Field1 / fullField + Field2 / fullField) * ColorsInVertices[0].B);
+            return (colorred, colorgreen, colorblue);
+        }
+
+        public (int, int, int) getRGBfromVerticesHybrid(double fullField, double Field0, double Field1, double Field2)
+        {
+
+            int colorred = (int)((Field0 / fullField + Field1 / fullField + Field2 / fullField) * ColorAndVectorsinVertices[0].Item1.R);
+            int colorgreen = (int)((Field0 / fullField + Field1 / fullField + Field2 / fullField) * ColorAndVectorsinVertices[0].Item1.G);
+            int colorblue = (int)((Field0 / fullField + Field1 / fullField + Field2 / fullField) * ColorAndVectorsinVertices[0].Item1.B);
             return (colorred, colorgreen, colorblue);
         }
 

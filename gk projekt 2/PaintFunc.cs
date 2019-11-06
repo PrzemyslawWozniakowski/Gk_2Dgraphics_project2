@@ -18,12 +18,6 @@ namespace gk_projekt_2
         {
             Pen p = new Pen(new SolidBrush(Color.Black));
             var graphics = e.Graphics;
-            // e.Graphics.DrawImage(Values.vectormap, 0, 0);
-            // Values.triangles[1].FillTriangle(graphics);
-
-
-           
-            //drawMap = (Color[,])colorMap.Clone();
 
 
             if (useGlobalKMValues)
