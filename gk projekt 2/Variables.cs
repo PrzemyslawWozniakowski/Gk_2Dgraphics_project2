@@ -17,22 +17,16 @@ namespace gk_projekt_2
         public Bitmap vectorbitmap;
         public Bitmap colorbitmap;
 
-        public (double, double, double) lightSourceVector = (0, 0, 1);
-        public (double, double, double) observerVector = (0, 0, 1);
+        public Vec3 observerVector = new Vec3 (0, 0, 1);
 
         public List<Vertice> vertices = new List<Vertice>();
         public List<Triangle> triangles = new List<Triangle>();
 
-        public List<Color> colorList = new List<Color>(new Color[] { Color.Red, Color.Blue });
-
         public Color fillColor = Color.Red;
-     //   public bool useMap = true;
 
-        public List<Color> lightColorList = new List<Color>(new Color[] { Color.FromArgb(1, 1, 2), Color.FromArgb(2, 1, 2) });
+        public List<Color> lightColorList = new List<Color>(new Color[] { Color.FromArgb(1, 1, 2), Color.FromArgb(2, 1, 2), Color.FromArgb(1, 2, 1), });
 
         public Color lightColor = Color.FromArgb(1, 1, 1);
-
-       // public bool vectorUseMap = true;
 
         public int calculateColorType = 0;
         public double k_s = 0.5;
@@ -44,19 +38,24 @@ namespace gk_projekt_2
         public Random rnd = new Random();
 
         public bool isAnimation = false;
-        public (double, double, double) lightSource = (0, 0, 1);
-        public double LSdy = 0.1;
-        public double LSdx = 0.2;
+        public Vec3 lightSource;
+        public double t = 0;
+        public double a = 3;
+        public double b = 2;
+        public double A=0;
+        public double B=0;
+        public double gamma = Math.PI / 2;
 
+        public Color[,] drawMap;
         public Color[,] colorMap;
         public Color[,] vectorMap;
 
-        public (double, double, double) NormalizeVector((double, double, double) vector)
+        public int Clamp(int val, int from, int to)
         {
-            double length = Math.Pow(vector.Item1, 2) + Math.Pow(vector.Item2, 2) + Math.Pow(vector.Item3, 2);
-            length = Math.Sqrt(length);
-            return (vector.Item1 / length, vector.Item2 / length, vector.Item3 / length);
+            if (to < from) return -1;
+            if (val > to) val = to;
+            if (val < from) val = from;
+            return val;
         }
-
     }
 }
