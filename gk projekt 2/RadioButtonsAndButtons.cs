@@ -50,8 +50,13 @@ namespace gk_projekt_2
 
         private void LightColor_radioButton1_CheckedChanged(object sender, EventArgs e)
         {
-            if (LightColor_radioButton1.Checked) lightColor = Color.FromArgb(1, 1, 1);
-            else lightColor = (Color)LightColor_comboBox1.SelectedValue;
+            if (LightColor_radioButton1.Checked) lightColor = new Vec3(1, 1, 1);
+            else
+            {
+                Color col = (Color)LightColor_comboBox1.SelectedValue;
+                lightColor = new Vec3(col.R, col.G, col.B);
+                pictureBox1.Invalidate();
+            }
             pictureBox1.Invalidate();
         }
 
@@ -71,7 +76,8 @@ namespace gk_projekt_2
         {
             if (LightColor_radioButton2.Checked)
             {
-                lightColor = (Color)LightColor_comboBox1.SelectedValue;
+                Color col = (Color)LightColor_comboBox1.SelectedValue;
+                lightColor = new Vec3(col.R,col.G,col.B);
                 pictureBox1.Invalidate();
             }
         }
@@ -147,26 +153,58 @@ namespace gk_projekt_2
                 lightSource = new Vec3(pictureBox1.Width / 2, pictureBox1.Height / 2, 10000);
                 isAnimation = false;
                 timer1.Enabled = false;
+                useReflectors = false;
             }
             else
-            {
+                if (LightSource_radioButton2.Checked)
+                {
                 A = pictureBox1.Width / 2;
                 B = pictureBox1.Height / 2;
                 lightSource = new Vec3(pictureBox1.Width / 2 + A * Math.Sin(a * t + gamma), pictureBox1.Height / 2 + B * Math.Sin(b * t), (double)numericUpDown1.Value);
+            
                 isAnimation = true;
                 timer1.Enabled = true;
-            }
+                useReflectors = false;
+                }
+                else
+                {
+                useReflectors = true;
+                isAnimation = true;
+                timer1.Enabled = true;
+                }
             pictureBox1.Invalidate();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (isAnimation)
+            if (isAnimation&& LightSource_radioButton2.Checked)
             {
                 int z = (int)numericUpDown1.Value;
-                t += Math.PI / 60;
+                t += Math.PI / 180;
                 lightSource = new Vec3(pictureBox1.Width / 2 + A * Math.Sin(a * t + gamma), pictureBox1.Height / 2 + B * Math.Sin(b * t), z);
                 pictureBox1.Invalidate();
+            }
+            if (isAnimation && reflectors_radiobutton.Checked)
+            {
+
+                RedReflectorPosition.x = (int)Math.Ceiling(reflectorCenter.Item1 + reflectorR * Math.Sin(((double)Angle / 180) * Math.PI));
+                RedReflectorPosition.y = (int)Math.Ceiling(reflectorCenter.Item2 + reflectorR * Math.Cos(((double)Angle / 180) * Math.PI));
+                RedReflectorPosition.z = reflectorHeight;
+                GreenReflectorPosition.x = (int)Math.Ceiling(reflectorCenter.Item1 + reflectorR * Math.Sin(((double)Angle1 / 180) * Math.PI));
+                GreenReflectorPosition.y = (int)Math.Ceiling(reflectorCenter.Item2 + reflectorR * Math.Cos(((double)Angle1 / 180) * Math.PI));
+                GreenReflectorPosition.z = reflectorHeight;
+                BlueReflectorPosition.x = (int)Math.Ceiling(reflectorCenter.Item1 + reflectorR * Math.Sin(((double)Angle2 / 180) * Math.PI));
+                BlueReflectorPosition.y = (int)Math.Ceiling(reflectorCenter.Item2 + reflectorR * Math.Cos(((double)Angle2 / 180) * Math.PI));
+                BlueReflectorPosition.z = reflectorHeight;
+                if (Angle < 360) Angle += 5;
+                else Angle = 0;
+                if (Angle1 < 360) Angle1 += 5;
+                else Angle1 = 0;
+                if (Angle2 < 360) Angle2 += 5;
+                else Angle2 = 0;
+                pictureBox1.Invalidate();
+
+
             }
         }
 
@@ -197,7 +235,7 @@ namespace gk_projekt_2
         {
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png";
-            dialog.InitialDirectory = @"C:\Users\Przem\source\repos\gk projekt 2\gk projekt 2\Bitmaps";
+            dialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
             dialog.Title = "Please select a bitmap.";
             if (dialog.ShowDialog() == DialogResult.OK)
             {
@@ -221,7 +259,7 @@ namespace gk_projekt_2
 
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png";
-            dialog.InitialDirectory = @"C:\Users\Przem\source\repos\gk projekt 2\gk projekt 2\NormalMaps";
+            dialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
             dialog.Title = "Please select a normal map.";
             if (dialog.ShowDialog() == DialogResult.OK)
             {

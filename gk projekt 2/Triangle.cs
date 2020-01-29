@@ -37,12 +37,13 @@ namespace gk_projekt_2
         public List<Color> ColorsInVertices;
         public List<(Color, Vec3)> ColorAndVectorsinVertices;
 
-        public void CalculateColorsinVertices(ref Color[,] colorMap, ref Color[,] vectorMap, Vec3 observerVector, Vec3 lightSourceVector, Color lightColor, double k_s, double k_d, int m)
+        public void CalculateColorsinVertices(ref Color[,] colorMap, ref Color[,] vectorMap, Vec3 observerVector, Vec3 lightSourceVector, Vec3 lightColor, double k_s, double k_d, int m)
         {
             ColorsInVertices = new List<Color>();
             foreach (var el in vertices)
             {
                 ColorsInVertices.Add(CalculateIdealColor(el.X, el.Y, ref colorMap, ref vectorMap, observerVector, lightSourceVector, lightColor, k_s, k_d, m));
+
             }
         }
 
@@ -55,11 +56,12 @@ namespace gk_projekt_2
             }
         }
 
-        public void FillTriangle(ref Color[,] colorTable, ref Color[,] vectorTable, ref Color[,] drawTable, Vec3 observerVector, Vec3 lightSource, Color lightColor, double k_s, double k_d, int m, int calculateColorType)
+        public void FillTriangle(ref Color[,] colorTable, ref Color[,] vectorTable, ref Color[,] drawTable, Vec3 observerVector, Vec3 lightSource, Vec3 lightColor, double k_s, double k_d, int m, int calculateColorType, bool useReflectors, Vec3 redR, Vec3 greenR, Vec3 blueR)
         {
             if (calculateColorType == 1)
+            {
                 CalculateColorsinVertices(ref colorTable, ref vectorTable, observerVector, lightSource, lightColor, k_s, k_d, m);
-
+            }
             if (calculateColorType == 2)
                 CalculateColorAndVectorsinVertices(ref colorTable, ref vectorTable);
 
@@ -117,18 +119,60 @@ namespace gk_projekt_2
                     for (int d = (int)Aet[2 * i].Item3; d < (int)Aet[2 * i + 1].Item3; d++)
                     {
                         Color color;
-                        switch (calculateColorType)
+                        if (!useReflectors)
                         {
-                            case 2:
-                                color = CalculateHybrid(d, y, observerVector, lightSource, lightColor, k_s, k_d, m);
-                                break;
-                            case 1:
-                                color = CalculateInterpolation(d, y, lightColor, k_s, k_d, m);
-                                break;
-                            case 0:
-                            default:
-                                color = CalculateIdealColor(d, y, ref colorTable, ref vectorTable, observerVector, lightSource, lightColor, k_s, k_d, m);
-                                break;
+                            switch (calculateColorType)
+                            {
+                                case 2:
+                                    color = CalculateHybrid(d, y, observerVector, lightSource, lightColor, k_s, k_d, m);
+                                    break;
+                                case 1:
+                                    color = CalculateInterpolation(d, y, lightColor, k_s, k_d, m);
+                                    break;
+                                case 0:
+                                default:
+                                    color = CalculateIdealColor(d, y, ref colorTable, ref vectorTable, observerVector, lightSource, lightColor, k_s, k_d, m);
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            Color colorR, colorB, colorG;
+
+
+                            Vec3 Vp1 = new Vec3(d, y, 0) - redR;
+                            Vec3 lightC1;
+                            Vp1.NormalizeVector();
+                            double productR1 = Vp1.ScalarProduct(new Vec3(0, 0, -1));
+                            productR1 = Math.Pow(productR1, 100);
+                            if (productR1 < 0.0001) colorR = Color.FromArgb(0, 0, 0);
+                            else
+                            {
+                                lightC1 = new Vec3(1 * productR1, 0, 0);
+                                colorR = CalculateIdealColor(d, y, ref colorTable, ref vectorTable, observerVector, redR, lightC1, k_s, k_d, m);
+                            }
+                            Vp1 = new Vec3(d, y, 0) - greenR;
+                            Vp1.NormalizeVector();
+                            double productG1 = Vp1.ScalarProduct(new Vec3(0, 0, -1));
+                            productR1 = Math.Pow(productG1, 100);
+                            if (productR1 < 0.0001) colorG = Color.FromArgb(0, 0, 0);
+                            else
+                            {
+                                lightC1 = new Vec3(0, 1 * productR1, 0);
+                                colorG = CalculateIdealColor(d, y, ref colorTable, ref vectorTable, observerVector, greenR, lightC1, k_s, k_d, m);
+                            }
+                            Vp1 = new Vec3(d, y, 0) - blueR;
+                            Vp1.NormalizeVector();
+                            double productB1 = Vp1.ScalarProduct(new Vec3(0, 0, -1));
+                            productR1 = Math.Pow(productB1, 100);
+                            if (productR1 < 0.00001) colorB = Color.FromArgb(0, 0, 0);
+                            else
+                            {
+                                lightC1 = new Vec3(0, 0, 1 * productR1);
+                                colorB = CalculateIdealColor(d, y, ref colorTable, ref vectorTable, observerVector, blueR, lightC1, k_s, k_d, m);
+                            }
+                            color = Color.FromArgb(Clamp(colorR.R + colorB.R + colorG.R, 0, 255), Clamp(colorR.G + colorG.G + colorB.G, 0, 255), Clamp(colorR.B + colorG.B + colorB.B, 0, 255));
+
                         }
                         drawTable[d, y] = color;
                     }
@@ -141,8 +185,9 @@ namespace gk_projekt_2
             }
         }
 
-        public Color CalculateIdealColor(int x, int y, ref Color[,] colorMap, ref Color[,] normalMap, Vec3 observerVector, Vec3 lightSource, Color lightColor, double k_s, double k_d, int m)
+        public Color CalculateIdealColor(int x, int y, ref Color[,] colorMap, ref Color[,] normalMap, Vec3 observerVector, Vec3 lightSource, Vec3 lightColor, double k_s, double k_d, int m)
         {
+
             if (x < 0) x = 0;
             var mappixel = colorMap[x, y];
             Vec3 normalV = getVector(x, y, ref normalMap);
@@ -150,21 +195,22 @@ namespace gk_projekt_2
             Vec3 lightV = lightSource - new Vec3(x, y, 0);
             lightV.NormalizeVector();
 
-            double iloczyn1 = normalV.ScalarProduct(lightV); 
-            Vec3 R = (2 * normalV.ScalarProduct(lightV)) *normalV - lightV;
+            double iloczyn1 = normalV.ScalarProduct(lightV);
+            Vec3 R = (2 * normalV.ScalarProduct(lightV)) * normalV - lightV;
             double iloczyn2 = R.ScalarProduct(normalV);
 
 
             int red, blue, green;
             (red, green, blue) = getRGB(k_d, lightColor, mappixel, iloczyn1, k_s, iloczyn2, m);
 
+
             return Color.FromArgb(Clamp(red, 0, 255), Clamp(green, 0, 255), Clamp(blue, 0, 255));
         }
 
-        public Color CalculateInterpolation(int x, int y, Color lightColor, double k_s, double k_d, int m)
+        public Color CalculateInterpolation(int x, int y, Vec3 lightColor, double k_s, double k_d, int m)
         {
             if (x < 0) x = 0;
-            double fullField = getField(getLength(vertices[0], vertices[1]), getLength(vertices[0], vertices[2]), getLength(vertices[1], vertices[2]));
+            double fullField = getField(vertices[0], vertices[1], vertices[2]);
             double Field0, Field1, Field2;
             (Field0, Field1, Field2) = getThreeFields(x, y);
 
@@ -175,13 +221,12 @@ namespace gk_projekt_2
             return Color.FromArgb(Clamp(red, 0, 255), Clamp(green, 0, 255), Clamp(blue, 0, 255));
         }
 
-        public Color CalculateHybrid(int x, int y, Vec3 observerVector, Vec3 lightSource, Color lightColor, double k_s, double k_d, int m)
+        public Color CalculateHybrid(int x, int y, Vec3 observerVector, Vec3 lightSource, Vec3 lightColor, double k_s, double k_d, int m)
         {
             if (x < 0) x = 0;
-            double fullField = getField(getLength(vertices[0], vertices[1]), getLength(vertices[0], vertices[2]), getLength(vertices[1], vertices[2]));
+            double fullField = getField(vertices[0], vertices[1], vertices[2]);
             double Field0, Field1, Field2;
             (Field0, Field1, Field2) = getThreeFields(x, y);
-
 
             int colorred, colorgreen, colorblue;
             (colorred, colorgreen, colorblue) = getRGBfromVerticesHybrid(fullField, Field0, Field1, Field2);
@@ -194,7 +239,7 @@ namespace gk_projekt_2
             Vec3 lightV = lightSource - new Vec3(x, y, 0);
             lightV.NormalizeVector();
 
-            double iloczyn1 = normalV.ScalarProduct(lightV);  
+            double iloczyn1 = normalV.ScalarProduct(lightV);
             Vec3 R = (2 * normalV.ScalarProduct(lightV)) * normalV - lightV;
             double iloczyn2 = R.ScalarProduct(normalV);
 
@@ -206,10 +251,13 @@ namespace gk_projekt_2
         }
 
 
-        public double getField(double a, double b, double c)
+        public double getField(Vertice A, Vertice B, Vertice C)
         {
-            double p = (a + b + c) * 0.5;
-            return Math.Sqrt(p * (p - a) * (p - b) * (p - c));
+            Vec3 AB = new Vec3(B.X - A.X, B.Y - A.Y, 0);
+            Vec3 AC = new Vec3(C.X - A.X, C.Y - A.Y, 0);
+
+            double p = Math.Sqrt((Math.Pow(AB.x, 2) + Math.Pow(AB.y, 2)) * (Math.Pow(AC.x, 2) + Math.Pow(AC.y, 2)) - Math.Pow(AB.ScalarProduct(AC), 2)) / 2;
+            return p;
         }
 
         public double getLength(Vertice v1, Vertice v2)
@@ -223,44 +271,46 @@ namespace gk_projekt_2
             return (((double)p1.X - (double)p2.X) / ((double)p1.Y - (double)p2.Y));
         }
 
-        public (int,int,int) getRGB(double k_d, Color lightColor, Color pixelColor, double product1, double k_s, double product2, int m)
+        public (int, int, int) getRGB(double k_d, Vec3 lightColor, Color pixelColor, double product1, double k_s, double product2, int m)
         {
-            int red = (int)(k_d * lightColor.R * pixelColor.R * product1 + k_s * lightColor.R * pixelColor.R * Math.Pow(product2, m));
-            int blue = (int)(k_d * lightColor.B * pixelColor.B * product1 + k_s * lightColor.B * pixelColor.B * Math.Pow(product2, m));
-            int green = (int)(k_d * lightColor.G * pixelColor.G * product2 + k_s * lightColor.G * pixelColor.G * Math.Pow(product2, m));
-            return(red, green, blue);
+            int red = (int)(k_d * lightColor.x * pixelColor.R * product1 + k_s * lightColor.x * pixelColor.R * Math.Pow(product2, m));
+            int blue = (int)(k_d * lightColor.y * pixelColor.B * product1 + k_s * lightColor.y * pixelColor.B * Math.Pow(product2, m));
+            int green = (int)(k_d * lightColor.z * pixelColor.G * product2 + k_s * lightColor.z * pixelColor.G * Math.Pow(product2, m));
+            return (red, green, blue);
         }
-        
-        public (int,int,int) getRGBfromVertices(double fullField, double Field0, double Field1, double Field2)
+
+        public (int, int, int) getRGBfromVertices(double fullField, double Field0, double Field1, double Field2)
         {
 
-            int colorred = (int)((Field0 / fullField + Field1 / fullField + Field2 / fullField)* ColorsInVertices[0].R);
-            int colorgreen = (int)((Field0 / fullField + Field1 / fullField + Field2 / fullField) * ColorsInVertices[0].G);
-            int colorblue = (int)((Field0 / fullField + Field1 / fullField + Field2 / fullField) * ColorsInVertices[0].B);
+            int colorred = (int)((Field0 / fullField) * ColorsInVertices[0].R + (Field1 / fullField) * ColorsInVertices[1].R + (Field2 / fullField) * ColorsInVertices[2].R);
+            int colorgreen = (int)((Field0 / fullField) * ColorsInVertices[0].G + (Field1 / fullField) * ColorsInVertices[1].G + (Field2 / fullField) * ColorsInVertices[2].G);
+            int colorblue = (int)((Field0 / fullField) * ColorsInVertices[0].B + (Field1 / fullField) * ColorsInVertices[1].B + (Field2 / fullField) * ColorsInVertices[2].B);
             return (colorred, colorgreen, colorblue);
         }
 
         public (int, int, int) getRGBfromVerticesHybrid(double fullField, double Field0, double Field1, double Field2)
         {
 
-            int colorred = (int)((Field0 / fullField + Field1 / fullField + Field2 / fullField) * ColorAndVectorsinVertices[0].Item1.R);
-            int colorgreen = (int)((Field0 / fullField + Field1 / fullField + Field2 / fullField) * ColorAndVectorsinVertices[0].Item1.G);
-            int colorblue = (int)((Field0 / fullField + Field1 / fullField + Field2 / fullField) * ColorAndVectorsinVertices[0].Item1.B);
+            int colorred = (int)((Field0 / fullField) * ColorAndVectorsinVertices[0].Item1.R + (Field1 / fullField) * ColorAndVectorsinVertices[1].Item1.R + (Field2 / fullField) * ColorAndVectorsinVertices[2].Item1.R);
+            int colorgreen = (int)((Field0 / fullField) * ColorAndVectorsinVertices[0].Item1.G + (Field1 / fullField) * ColorAndVectorsinVertices[1].Item1.G + (Field2 / fullField) * ColorAndVectorsinVertices[2].Item1.G);
+            int colorblue = (int)((Field0 / fullField) * ColorAndVectorsinVertices[0].Item1.B + (Field1 / fullField) * ColorAndVectorsinVertices[1].Item1.B + (Field2 / fullField) * ColorAndVectorsinVertices[2].Item1.B);
             return (colorred, colorgreen, colorblue);
         }
 
-        public (double,double,double) getThreeFields(int x, int y)
+
+
+        public (double, double, double) getThreeFields(int x, int y)
         {
-            double Field0 = getField(getLength(new Vertice(x, y), vertices[1]), getLength(vertices[2], vertices[1]), getLength(new Vertice(x, y), vertices[2]));
-            double Field1 = getField(getLength(new Vertice(x, y), vertices[0]), getLength(vertices[2], vertices[0]), getLength(new Vertice(x, y), vertices[2]));
-            double Field2 = getField(getLength(new Vertice(x, y), vertices[1]), getLength(vertices[0], vertices[1]), getLength(new Vertice(x, y), vertices[0]));
+            double Field0 = getField(new Vertice(x, y), vertices[1], vertices[2]);
+            double Field1 = getField(vertices[0], new Vertice(x, y), vertices[2]);
+            double Field2 = getField(vertices[0], vertices[1], new Vertice(x, y));
             return (Field0, Field1, Field2);
 
         }
         public Vec3 getVector(int x, int y, ref Color[,] vectorMap)
         {
             var vectorpixel = vectorMap[x, y];
-            Vec3 normalV = new Vec3((double)(vectorpixel.R - 127) / 127,(double)(-vectorpixel.G + 127) / 127, (double)(vectorpixel.B) / 255);
+            Vec3 normalV = new Vec3((double)(vectorpixel.R - 127) / 127, (double)(-vectorpixel.G + 127) / 127, (double)(vectorpixel.B) / 255);
             normalV.NormalizeVector();
             return normalV;
         }

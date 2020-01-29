@@ -26,7 +26,7 @@ namespace gk_projekt_2
 
         public List<Color> lightColorList = new List<Color>(new Color[] { Color.FromArgb(1, 1, 2), Color.FromArgb(2, 1, 2), Color.FromArgb(1, 2, 1), });
 
-        public Color lightColor = Color.FromArgb(1, 1, 1);
+        public Vec3 lightColor = new Vec3(1, 1, 1);
 
         public int calculateColorType = 0;
         public double k_s = 0.5;
@@ -57,5 +57,17 @@ namespace gk_projekt_2
             if (val < from) val = from;
             return val;
         }
+
+        public (int,int) reflectorCenter = (300,300);
+        public Vec3 RedReflectorPosition;
+        public Vec3 GreenReflectorPosition;
+        public  Vec3 BlueReflectorPosition;
+
+        public bool useReflectors = false;
+        public int reflectorHeight = 100;
+        public int reflectorR = 300;
+        public int Angle = 0;
+        public int Angle1 = 120;
+        public int Angle2 = 240;
     }
 }

@@ -24,14 +24,14 @@ namespace gk_projekt_2
             {
                 Parallel.ForEach(triangles, (triangle) =>
                 {
-                    triangle.FillTriangle(ref colorMap, ref vectorMap, ref drawMap, observerVector, lightSource, lightColor, k_s, k_d, m, calculateColorType);
+                    triangle.FillTriangle(ref colorMap, ref vectorMap, ref drawMap, observerVector, lightSource, lightColor, k_s, k_d, m, calculateColorType, useReflectors, RedReflectorPosition, GreenReflectorPosition, BlueReflectorPosition);
                 });
             }
             else
             {
                 Parallel.ForEach(triangles, (triangle) =>
                 {
-                    triangle.FillTriangle(ref colorMap, ref vectorMap, ref drawMap, observerVector, lightSource, lightColor, triangle.ks, triangle.kd, triangle.m, calculateColorType);
+                    triangle.FillTriangle(ref colorMap, ref vectorMap, ref drawMap, observerVector, lightSource, lightColor, triangle.ks, triangle.kd, triangle.m, calculateColorType, useReflectors, RedReflectorPosition, GreenReflectorPosition, BlueReflectorPosition);
                 });
             }
 
